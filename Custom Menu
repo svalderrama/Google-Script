@@ -1,0 +1,134 @@
+//creates  custom menu option in google sheets called 'github' with options to export a range in a column, or format it into a predefined sting and paste into another range
+//highlight range, go to tab and decide whether syntax will be imported to range, or if range will be exported
+//Custom menu added to toolbar with option to export a column, and in a sub menu, format appropriate group  
+//tags are created from cell value, delimitor being a comma
+
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('GitHub')
+      .addItem('Export', 'export1')
+      .addSeparator()
+      .addSubMenu(ui.createMenu('Format')
+          .addItem('Option1', 'op1') 
+      .addToUi();
+}
+
+//exporting the pre selected column/range into a new google doc, omitting blank rows and the header row
+function export1() {
+  //popup button to name the new doc
+  var ui = SpreadsheetApp.getUi();
+  var result = ui.prompt(
+        'Name of New Document:',
+        ui.ButtonSet.OK_CANCEL);
+
+  var button = result.getSelectedButton();
+  var name = result.getResponseText();
+  //creating the new doc
+  var doc = DocumentApp.create(name);
+  var body=doc.getBody();
+  //getting the active range and adding values to the document
+  var range=SpreadsheetApp.getActiveRange();
+  var i=1;  
+  while(i<range.getNumRows()+1 ){
+    if(!range.getCell(i,1).isBlank() && range.getCell(i,1).getRow()>1){
+    body.appendParagraph(range.getCell(i,1).getValue().toString());
+    }
+    i++;
+  }
+}
+
+function op1() { //Publicly available computers and laptops - pasting values into the sheet
+  var sheet= SpreadsheetApp.getActiveSheet();
+
+  //set up variables for iteration 
+  var rangecol = SpreadsheetApp.getActiveRange().getColumn();//column to paste into
+  var rangerow= SpreadsheetApp.getActiveRange().getRow();//first row in range
+  var rangelength=SpreadsheetApp.getActiveRange().getNumRows();//length of range
+  var j=rangerow;//counter variable
+  var values= sheet.getRange(j,1,1,10).getValues();//array of values from the range
+
+  //paste syntax into cell range as long as there is an orginization name available  
+  while(values[0][0].toString().length!==0 && j<(rangerow+rangelength)){
+    
+    //paclFormat() is a funtion in 'Formatting Syntax' file
+    var string= op1Format(values[0][0].toString(),values[0][1].toString(),values[0][2].toString(),values[0][3].toString(),
+      values[0][4].toString(),values[0][5].toString(),values[0][6].toString(),values[0][7].toString(),
+      values[0][8].toString(),values[0][9].toString());
+    
+    sheet.getRange(j,rangecol).setValue(string);
+    // for next iteration  
+    j++;
+    values= sheet.getRange(j,1,1,10).getValues();
+  }   
+}
+function op1Format(name,address,borough,time,url,email,num,lat,long,tags){
+  
+  if(name.length==0){
+    name= "null";
+  }else name = '"'+name+'"'
+  
+  if(address.length==0){
+    address= "null";
+  }else address='"'+address+'"';
+  
+  if(borough.length==0){
+    borough= "null";
+  }else borough= '"'+borough+'"';
+  
+  if(time.length==0){
+    time= "null";
+  }else time='"'+time+'"';
+  
+  if(url.length==0){
+    url= "null";
+  }else url='"'+url+'"';
+  
+  if(email.length==0){
+    email= "null";
+  }else email='"'+email+'"';
+  
+  if(num.length==0){
+    num= "null";
+  }else num='"'+num+'"';
+  
+  if(lat.length==0){
+    lat= "null";}
+  
+  if(long.length==0){
+    long= "null";}
+
+  //tags
+  if(tags.length>0){
+    tags=tags.split(", ");
+    var length=tags.length;
+    var newt="";
+
+
+    if(length>1){
+      for(i=0;i<length;i++){
+        if(i==0){
+          newt= newt +'["'+ tags[i]+'" , ';
+        }
+        else if(i==length-1){
+          newt= newt +'"'+ tags[i]+'"]';
+        }
+        else{newt= newt +'"'+ tags[i]+'" , ';}
+      }
+    }
+    else {newt= newt +'["'+ tags+'"] ';}
+    tags=newt;  
+  }
+  else{tags="null"}
+  var string = 
+    '{\n\t name: ' + name+ 
+    ', \n\t address: '+ address+
+    ', \n\t borough: '+ borough+ 
+    ', \n\t operationTime: '+ time+ 
+    ', \n\t url: '+ url+ 
+    ', \n\t email: '+ email+ 
+    ', \n\t contact_number: '+ num+ 
+    ', \n\t lat: '+lat+
+    ', \n\t long: '+long+
+    ', \n\t tags: '+tags+'\n},';
+  return string;
+}
