@@ -1,0 +1,36 @@
+//creates a table from a vertical list in which a new row is indicated by a url, all subsequent, non urls are adjacent column entries 
+
+function listToTable(pRange){
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var range= sheet.getRange(pRange);
+
+  var col = 0;
+  var row = -1;
+  var table = new Array;
+
+  for(i=0;i<range.getNumRows();i++){
+      var check = range.getCell(i+1,1).getRichTextValue();
+      if(check!=null){
+        var url = check.getLinkUrl();
+
+        if(url!=null){
+          row++;
+          col = 0;
+          table[row] = new Array;
+          val = range.getCell(i+1,1).getValue();
+          table[row][col] = url;
+          col++;
+          table[row][col] = val;
+
+        }
+        else{
+          col++;
+          val = range.getCell(i+1,1).getValue();
+          table[row][col] = val;
+        }
+      }
+
+  }
+  return table;
+}
+
