@@ -1,4 +1,5 @@
-//creates  custom menu option in google sheets called 'github' with options to export a range in a column, or format it into a predefined sting and paste into another range
+//creates  custom menu option in google sheets called 'github' with options to export a range in a column to a new doc in google drive,
+    //or format it into a predefined sting and paste into another range
 //highlight range, go to tab and decide whether syntax will be imported to range, or if range will be exported
 //Custom menu added to toolbar with option to export a column, and in a sub menu, format appropriate group  
 //tags are created from cell value, delimitor being a comma
